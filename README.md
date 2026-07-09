@@ -11,7 +11,7 @@ En este capítulo se explica:
 - Ventajas del procesamiento con Chunks vs Tasklets
 
 ## Recursos
-- **Video**: [Procesamiento con Chunks](https://youtu.be/t_ZV8nuPp-c)
+- **Video**: [Procesamiento con Chunks](https://youtu.be/jatBCYn6M68?list=PLETWWcGiZcBs
 - **Playlist completa**: [Spring Batch desde 0](https://www.youtube.com/playlist?list=PLETWWcGiZcBs)
 - **Branch principal**: [main](https://github.com/ferclager/batch-usuarios/tree/main)
 - **Branch actual**: [chore/03-chunks](https://github.com/ferclager/batch-usuarios/tree/chore/03-chunks)

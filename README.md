@@ -11,6 +11,7 @@ En este capítulo se explica:
 - Ventajas del procesamiento con Chunks vs Tasklets
 
 ## Recursos
+- **Video**: [Procesamiento con Chunks](https://youtu.be/t_ZV8nuPp-c)
 - **Playlist completa**: [Spring Batch desde 0](https://www.youtube.com/playlist?list=PLETWWcGiZcBs)
 - **Branch principal**: [main](https://github.com/ferclager/batch-usuarios/tree/main)
 - **Branch actual**: [chore/03-chunks](https://github.com/ferclager/batch-usuarios/tree/chore/03-chunks)
@@ -32,3 +33,6 @@ Esta branch contiene:
 
 ## Capítulo Anterior
 - [Tu primer Job de Spring Batch: Tasklet y metadata](https://youtu.be/bh48zlM7alk) - [chore/02-tasklet](https://github.com/ferclager/batch-usuarios/tree/chore/02-tasklet)
+
+## Siguiente Capítulo
+- [Lectura de CSV con FlatFileItemReader](https://youtu.be/f3c9PuQ6b_I)

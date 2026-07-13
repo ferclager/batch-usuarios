@@ -7,15 +7,18 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.database.JdbcBatchItemWriter;
+import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.mapping.RecordFieldSetMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.transaction.PlatformTransactionManager;
+
+import javax.sql.DataSource;
 
 @Configuration
 public class BatchConfig {
@@ -32,10 +35,12 @@ public class BatchConfig {
     }
 
     @Bean
-    public ItemWriter<Usuario> writer() {
-        return lote -> {
-            lote.forEach(System.out::println);
-        };
+    public JdbcBatchItemWriter<Usuario> writer(DataSource dataSource) {
+        return new JdbcBatchItemWriterBuilder<Usuario>()
+                .dataSource(dataSource)
+                .sql("INSERT INTO usuario (nombre, email, edad) VALUES (:nombre, :email, :edad)")
+                .beanMapped()
+                .build();
     }
 
     @Bean

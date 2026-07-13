@@ -11,7 +11,7 @@ En este capítulo se explica:
 - Integración del Processor en el flujo de Chunks
 
 ## Recursos
-- **Video**: [Próximamente](https://www.youtube.com/playlist?list=PLETWWcGiZcBs)
+- **Video**: [Transforma y valida datos con ItemProcessor](https://youtu.be/_nIhecLXQic?si=_WwnWKt7EF6Xq5GQ)
 - **Playlist completa**: [Spring Batch desde 0](https://www.youtube.com/playlist?list=PLETWWcGiZcBs)
 - **Branch principal**: [main](https://github.com/ferclager/batch-usuarios/tree/main)
 - **Branch actual**: [chore/05-processor](https://github.com/ferclager/batch-usuarios/tree/chore/05-processor)
@@ -33,3 +33,7 @@ Esta branch contiene:
 
 ## Capítulo Anterior
 - [Lectura de Archivos CSV con FlatFileItemReader](https://github.com/ferclager/batch-usuarios/tree/chore/04-csv) - [chore/04-csv](https://github.com/ferclager/batch-usuarios/tree/chore/04-csv)
+
+## Capítulo Siguiente
+- [](https://github.com/ferclager/batch-usuarios/tree/chore/06-jdbcbiw) - [chore/06-jdbcbiw](https://github.com/ferclager/batch-usuarios/tree/chore/06-jdbcbiw)
+

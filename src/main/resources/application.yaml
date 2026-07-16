@@ -3,7 +3,7 @@ spring:
     name: batch-usuarios
   batch:
     jdbc:
-      initialize-schema: always
+      initialize-schema: always # primera ejecucion always, resto never
     job:
       name: importarUsuariosJob
   h2:
@@ -17,7 +17,7 @@ spring:
       mode: always
       schema-locations: classpath:schema-usuario.sql
   datasource:
-    url: jdbc:h2:mem:batchusuariosdb
+    url: jdbc:h2:file:./data/batchdb
     driver-class-name: org.h2.Driver
     username: sa
     password:

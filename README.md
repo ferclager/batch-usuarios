@@ -10,6 +10,12 @@ En este capítulo se explica:
 - Integración del Writer en el flujo de Chunks
 - Procesamiento completo: Reader → Processor → Writer (BD)
 
+## Notas:
+- **`JobExecutionListener`**: `beforeJob` / `afterJob`. Ideal para logs de inicio/fin y resumen.
+- **`StepExecutionListener`**: `beforeStep` / `afterStep`. Acceso a contadores del step.
+- **`ChunkListener`**: alrededor de cada lote (`beforeChunk`, `afterChunk`, `afterChunkError`).
+- **`ItemReadListener` / `ItemProcessListener` / `ItemWriteListener`**: por item (incluido `onXxxError`).
+
 ## Recursos
 - **Video**: [Escribe en Base de Datos con JdbcBatchItemWriter](https://youtu.be/acNaHaqTu_Y?si=OhBc0KDVX4H-2qrW)
 - **Playlist completa**: [Spring Batch desde 0](https://www.youtube.com/playlist?list=PLETWWcGiZcBs)

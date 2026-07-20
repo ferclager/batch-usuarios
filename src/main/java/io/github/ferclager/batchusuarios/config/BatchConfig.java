@@ -1,5 +1,6 @@
 package io.github.ferclager.batchusuarios.config;
 
+import io.github.ferclager.batchusuarios.listener.JobLoggerListener;
 import io.github.ferclager.batchusuarios.model.Usuario;
 import io.github.ferclager.batchusuarios.processor.UsuarioProcessor;
 import org.springframework.batch.core.Job;
@@ -61,9 +62,11 @@ public class BatchConfig {
     }
 
     @Bean
-    public Job importarUsuariosJob(JobRepository jobRepository, Step pasoImportar) {
+    public Job importarUsuariosJob(JobRepository jobRepository, Step pasoImportar,
+                                   JobLoggerListener jobExecutionListener) {
         return new JobBuilder("importarUsuariosJob", jobRepository)
                 .start(pasoImportar)
+                .listener(jobExecutionListener)
                 .build();
     }
 }

@@ -1,6 +1,7 @@
 package io.github.ferclager.batchusuarios.config;
 
 import io.github.ferclager.batchusuarios.listener.JobLoggerListener;
+import io.github.ferclager.batchusuarios.listener.SkipLoggerListener;
 import io.github.ferclager.batchusuarios.model.Usuario;
 import io.github.ferclager.batchusuarios.processor.UsuarioProcessor;
 import org.springframework.batch.core.Job;
@@ -15,6 +16,7 @@ import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilde
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.mapping.RecordFieldSetMapper;
+import org.springframework.batch.item.file.transform.FlatFileFormatException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -52,12 +54,20 @@ public class BatchConfig {
                              PlatformTransactionManager tx,
                              FlatFileItemReader<Usuario> reader,
                              UsuarioProcessor processor,
-                             ItemWriter<Usuario> writer) {
+                             ItemWriter<Usuario> writer,
+                             SkipLoggerListener skipLoggerListener) {
         return new StepBuilder("pasoImportar", jobRepository)
                 .<Usuario, Usuario>chunk(3, tx)   // tamaño del lote = 3
+                .faultTolerant()
+                .skip(IllegalArgumentException.class)
+                .skip(FlatFileFormatException.class)
+                .skipLimit(6)
+                .retry(org.springframework.dao.PessimisticLockingFailureException.class)
+                .retryLimit(3)
                 .reader(reader)
                 .processor(processor)
                 .writer(writer)
+                .listener(skipLoggerListener)
                 .build();
     }
 

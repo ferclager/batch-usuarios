@@ -71,12 +71,25 @@ public class BatchConfig {
                 .build();
     }
 
+    // Step de demo que falla el primer intento y reanuda el segundo.
+    @Bean
+    public Step pasoFalla(JobRepository jobRepository,
+                          PlatformTransactionManager tx,
+                          PasoFallaSimulada tasklet) {
+        return new StepBuilder("pasoFalla", jobRepository)
+                .tasklet(tasklet, tx)
+                .build();
+    }
+
+
     @Bean
     public Job importarUsuariosJob(JobRepository jobRepository, Step pasoImportar,
+                                   Step pasoFalla,
                                    JobLoggerListener jobExecutionListener) {
         return new JobBuilder("importarUsuariosJob", jobRepository)
-                .start(pasoImportar)
                 .listener(jobExecutionListener)
+                .start(pasoImportar)
+                .next(pasoFalla)
                 .build();
     }
 }

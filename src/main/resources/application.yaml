@@ -6,6 +6,7 @@ spring:
       initialize-schema: always # primera ejecucion always, resto never
     job:
       name: importarUsuariosJob
+      enabled: false
   h2:
     console:
       enabled: true

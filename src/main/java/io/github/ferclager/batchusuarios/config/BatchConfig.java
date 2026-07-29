@@ -1,26 +1,27 @@
 package io.github.ferclager.batchusuarios.config;
 
 import io.github.ferclager.batchusuarios.listener.JobLoggerListener;
-import io.github.ferclager.batchusuarios.listener.SkipLoggerListener;
 import io.github.ferclager.batchusuarios.model.Usuario;
-import io.github.ferclager.batchusuarios.processor.UsuarioProcessor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.mapping.RecordFieldSetMapper;
-import org.springframework.batch.item.file.transform.FlatFileFormatException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
@@ -49,47 +50,55 @@ public class BatchConfig {
                 .build();
     }
 
+//    @Bean
+//    public Step pasoImportar(JobRepository jobRepository,
+//                             PlatformTransactionManager tx,
+//                             FlatFileItemReader<Usuario> reader,
+//                             UsuarioProcessor processor,
+//                             ItemWriter<Usuario> writer,
+//                             SkipLoggerListener skipLoggerListener, TaskExecutor taskExecutor) {
+//        return new StepBuilder("pasoImportar", jobRepository)
+//                .<Usuario, Usuario>chunk(100, tx)   // tamaño del lote = 100
+//                .reader(reader)
+//                .processor(processor)
+//                .writer(writer)
+//                .listener(skipLoggerListener)
+//                .taskExecutor(taskExecutor)
+//                .build();
+//    }
+
     @Bean
-    public Step pasoImportar(JobRepository jobRepository,
-                             PlatformTransactionManager tx,
-                             FlatFileItemReader<Usuario> reader,
-                             UsuarioProcessor processor,
-                             ItemWriter<Usuario> writer,
-                             SkipLoggerListener skipLoggerListener) {
-        return new StepBuilder("pasoImportar", jobRepository)
-                .<Usuario, Usuario>chunk(3, tx)   // tamaño del lote = 3
-                .faultTolerant()
-                .skip(IllegalArgumentException.class)
-                .skip(FlatFileFormatException.class)
-                .skipLimit(6)
-                .retry(org.springframework.dao.PessimisticLockingFailureException.class)
-                .retryLimit(3)
-                .reader(reader)
-                .processor(processor)
-                .writer(writer)
-                .listener(skipLoggerListener)
-                .build();
+    public TaskExecutor taskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(4);
+        executor.setMaxPoolSize(4);
+        executor.setThreadNamePrefix("batch-");
+        executor.initialize();
+        return executor;
     }
 
-    // Step de demo que falla el primer intento y reanuda el segundo.
-    @Bean
-    public Step pasoFalla(JobRepository jobRepository,
-                          PlatformTransactionManager tx,
-                          PasoFallaSimulada tasklet) {
-        return new StepBuilder("pasoFalla", jobRepository)
-                .tasklet(tasklet, tx)
-                .build();
-    }
+     @Bean
+     public Step workerStep(JobRepository jobRepository,
+                            PlatformTransactionManager tx,
+                            ItemReader<Usuario> workerReader,
+                            ItemProcessor<Usuario, Usuario> processor,
+                            ItemWriter<Usuario> writer) {
+         return new StepBuilder("workerStep", jobRepository)
+                 .<Usuario, Usuario>chunk(100, tx)
+                 .reader(workerReader)      // reader @StepScope con minId/maxId
+                 .processor(processor)
+                 .writer(writer)
+                 .build();
+     }
 
 
+
     @Bean
-    public Job importarUsuariosJob(JobRepository jobRepository, Step pasoImportar,
-                                   Step pasoFalla,
+    public Job importarUsuariosJob(JobRepository jobRepository, Step workerStep,
                                    JobLoggerListener jobExecutionListener) {
         return new JobBuilder("importarUsuariosJob", jobRepository)
                 .listener(jobExecutionListener)
-                .start(pasoImportar)
-                .next(pasoFalla)
+                .start(workerStep)
                 .build();
     }
 }

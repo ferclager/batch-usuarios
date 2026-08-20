@@ -1,3 +1,5 @@
+import java.util.concurrent.ConcurrentHashMap
+
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.5.16'
@@ -32,6 +34,28 @@ dependencies {
 
 test {
 	useJUnitPlatform()
+	testLogging.info.showStandardStreams = false
+
+	def outputCache = new ConcurrentHashMap<String, List<String>>()
+	def cacheKey = { TestDescriptor td -> "${td.className}#${td.name}".toString() }
+	beforeTest { TestDescriptor td -> outputCache.remove(cacheKey(td)) }
+	onOutput { TestDescriptor td, TestOutputEvent toe ->
+		def lines = outputCache.computeIfAbsent(cacheKey(td)) { k -> new ArrayList<String>() }
+		lines.add(toe.getMessage())
+		while (lines.size() > 1000) lines.remove(0)
+	}
+	def colorReset = '\u001B[0m'
+	def colorGreen = '\u001B[32m'
+	def colorRed = '\u001B[31m'
+	afterTest { TestDescriptor td, TestResult tr ->
+		def lines = outputCache.remove(cacheKey(td)) ?: []
+		def color = (tr.resultType == TestResult.ResultType.SUCCESS) ? colorGreen : (tr.resultType == TestResult.ResultType.FAILURE ? colorRed : colorReset)
+		println("- Test result for ${td.className}${td.name}: ${color}${tr.resultType}${colorReset}")
+		if (tr.resultType == TestResult.ResultType.FAILURE && !lines.isEmpty()) {
+			lines.each { print(" > $it") }
+			println()
+		}
+	}
 }
 
 jar {
